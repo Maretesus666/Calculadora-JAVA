@@ -1,3 +1,4 @@
+//vesion 2
 package calcu;
 
 import java.awt.*;
@@ -201,86 +202,93 @@ public class Matrices2 extends JFrame implements ActionListener {
         button.setFont(new Font("BankGothic Lt BT", Font.BOLD, 15));
         return button;
     }
+public void actionPerformed(ActionEvent e) {
+    double[][] A = new double[matrixSize][matrixSize];
+    double[][] B = new double[matrixSize][matrixSize];
+    try {
+        if (e.getSource() == btnInverseA || e.getSource() == btnDeterminantA) {
+            if (!isMatrixComplete(matrixA, A)) {
+                textResult.setText("Por favor, complete todas las celdas de la matriz A.");
+                return;
+            }
+        } else {
+            if (!isMatrixComplete(matrixA, A) || !isMatrixComplete(matrixB, B)) {
+                textResult.setText("Por favor, complete todas las celdas de las matrices.");
+                return;
+            }
+        }
 
-    public void actionPerformed(ActionEvent e) {
-        double[][] A = new double[matrixSize][matrixSize];
-        double[][] B = new double[matrixSize][matrixSize];
-        try {
-            if (e.getSource() == btnInverseA || e.getSource() == btnDeterminantA) {
-                if (!isMatrixComplete(matrixA, A)) {
-                    textResult.setText("Por favor, complete todas las celdas de la matriz A.");
-                    return;
+        double[][] resultMatrix = null; // Inicializar resultMatrix
+
+        StringBuilder resultText = new StringBuilder();
+
+        if (e.getSource() == btnSum) {
+            resultMatrix = addMatrices(A, B);
+            resultText.append("Suma de matrices:\n");
+        } else if (e.getSource() == btnSubtract) {
+            resultMatrix = subtractMatrices(A, B);
+            resultText.append("Resta de matrices:\n");
+        } else if (e.getSource() == btnMultiply) {
+            resultMatrix = multiplyMatrices(A, B);
+            resultText.append("Multiplicación de matrices:\n");
+        } else if (e.getSource() == btnInverseA) {
+            if (matrixSize == 1) {
+                if (A[0][0] == 0) {
+                    resultText.append("La matriz no tiene inversa (división por cero).\n");
+                } else {
+                    resultText.append("Inversa de A:\n");
+                    resultText.append(String.format("%.2f\n", 1 / A[0][0]));
                 }
             } else {
-                if (!isMatrixComplete(matrixA, A) || !isMatrixComplete(matrixB, B)) {
-                    textResult.setText("Por favor, complete todas las celdas de las matrices.");
-                    return;
-                }
-            }
-
-            double[][] resultMatrix = null; // Inicializar resultMatrix
-
-            StringBuilder resultText = new StringBuilder();
-
-            if (e.getSource() == btnSum) {
-                resultMatrix = addMatrices(A, B);
-                resultText.append("Suma de matrices:\n");
-            } else if (e.getSource() == btnSubtract) {
-                resultMatrix = subtractMatrices(A, B);
-                resultText.append("Resta de matrices:\n");
-            } else if (e.getSource() == btnMultiply) {
-                resultMatrix = multiplyMatrices(A, B);
-                resultText.append("Multiplicación de matrices:\n");
-            } else if (e.getSource() == btnInverseA) {
-                if (matrixSize == 1) {
-                    if (A[0][0] == 0) {
-                        resultText.append("La matriz no tiene inversa (división por cero).\n");
-                    } else {
-                        resultText.append("Inversa de A:\n");
-                        resultText.append(String.format("%.2f\n", 1 / A[0][0]));
-                    }
+                double determinantA = determinant(A);
+                if (determinantA == 0) {
+                    resultText.append("La matriz A no tiene inversa (determinante 0).\n");
                 } else {
                     resultMatrix = inverseMatrix(A);
                     resultText.append("Inversa de la matriz A:\n");
                 }
-            } else if (e.getSource() == btnDeterminantA) {
-                if (matrixSize == 1) {
-                    resultText.append(String.format("Determinante de A: %.2f\n", A[0][0]));
+            }
+        } else if (e.getSource() == btnDeterminantA) {
+            if (matrixSize == 1) {
+                resultText.append(String.format("Determinante de A: %.2f\n", A[0][0]));
+            } else {
+                double determinantA = determinant(A);
+                resultText.append(String.format("Determinante de A: %.2f\n", determinantA));
+            }
+        } else if (e.getSource() == btnDivide) {
+            if (matrixSize == 1) {
+                if (B[0][0] == 0) {
+                    resultText.append("No se puede dividir por cero.\n");
                 } else {
-                    double determinantA = determinant(A);
-                    resultText.append(String.format("Determinante de A: %.2f\n", determinantA));
+                    resultText.append("División de matrices:\n");
+                    resultText.append(String.format("%.2f\n", A[0][0] / B[0][0]));
                 }
-            } else if (e.getSource() == btnDivide) {
-                if (matrixSize == 1) {
-                    if (B[0][0] == 0) {
-                        resultText.append("No se puede dividir por cero.\n");
-                    } else {
-                        resultText.append("División de matrices:\n");
-                        resultText.append(String.format("%.2f\n", A[0][0] / B[0][0]));
-                    }
+            } else {
+                double[][] inverseB = inverseMatrix(B);
+                if (inverseB == null) {
+                    resultText.append("La matriz B no tiene inversa, no se puede dividir.\n");
                 } else {
-                    double[][] inverseB = inverseMatrix(B);
                     resultMatrix = multiplyMatrices(A, inverseB);
                     resultText.append("División de matrices (A / B):\n");
                 }
             }
-
-            if (resultMatrix != null) {
-                for (double[] row : resultMatrix) {
-                    for (double val : row) {
-                        resultText.append(String.format("%.2f ", val));
-                    }
-                    resultText.append("\n");
-                }
-            }
-
-            textResult.setText(resultText.toString());
-
-        } catch (NumberFormatException ex) {
-            textResult.setText("Error: " + ex.getMessage());
         }
-    }
 
+        if (resultMatrix != null) {
+            for (double[] row : resultMatrix) {
+                for (double val : row) {
+                    resultText.append(String.format("%.2f ", val));
+                }
+                resultText.append("\n");
+            }
+        }
+
+        textResult.setText(resultText.toString());
+
+    } catch (NumberFormatException ex) {
+        textResult.setText("Caracteres invalidos");
+    }
+}
 
     private boolean isMatrixComplete(JTextField[][] matrixFields, double[][] matrix) {
         for (int i = 0; i < matrixSize; i++) {
@@ -356,15 +364,14 @@ public class Matrices2 extends JFrame implements ActionListener {
         int n = A.length;
         double[][] augmentedMatrix = new double[n][2 * n];
         double[][] inverse = new double[n][n];
-
-        // Crear una matriz aumentada con A y la matriz identidad
+          // Crear una matriz aumentada con A y la matriz identidad
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 augmentedMatrix[i][j] = A[i][j];
                 augmentedMatrix[i][j + n] = (i == j) ? 1 : 0;
             }
         }
-
+    
         // Aplicar eliminación gaussiana
         for (int i = 0; i < n; i++) {
             double pivot = augmentedMatrix[i][i];
@@ -424,4 +431,3 @@ public class Matrices2 extends JFrame implements ActionListener {
         return submatrix;
     }
 }
-ernesy
