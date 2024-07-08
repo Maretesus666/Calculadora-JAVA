@@ -1,0 +1,491 @@
+//vesion 2
+package calcu;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
+
+public class Matrices2 extends JFrame implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTextField[][] matrixA;
+    private JTextField[][] matrixB;
+    private JLabel lblMatrixA;
+    private JLabel lblMatrixB;
+    private JButton btnSum;
+    private JButton btnSubtract;
+    private JButton btnMultiply;
+    private JButton btnInverseA;
+    private JButton btnDeterminantA;
+    private JTextArea textResult;
+    private JButton btnDivide;
+    private JButton btnIncreaseSize;
+    private JButton btnDecreaseSize;
+
+    private int matrixSize = 3; // Tamaño inicial de la matriz (3x3 por defecto)
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    Matrices2 frame = new Matrices2();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public Matrices2() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1000, 700);
+        contentPane = new JPanel();
+        contentPane.setBackground(new Color(12, 73, 88));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
+
+        lblMatrixA = new JLabel("Matriz A");
+        lblMatrixA.setFont(new Font("BankGothic Lt BT", Font.BOLD, 24));
+        lblMatrixA.setForeground(new Color(31, 166, 140));
+        lblMatrixA.setHorizontalAlignment(SwingConstants.CENTER);
+        lblMatrixA.setBounds(319, 20, 200, 30);
+        contentPane.add(lblMatrixA);
+
+        lblMatrixB = new JLabel("Matriz B");
+        lblMatrixB.setFont(new Font("BankGothic Lt BT", Font.BOLD, 24));
+        lblMatrixB.setForeground(new Color(31, 166, 140));
+        lblMatrixB.setHorizontalAlignment(SwingConstants.CENTER);
+        lblMatrixB.setBounds(670, 20, 200, 30);
+        contentPane.add(lblMatrixB);
+
+        matrixA = new JTextField[5][5];
+        matrixB = new JTextField[5][5];
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                matrixA[i][j] = createMatrixTextField();
+                matrixA[i][j].setBounds(300 + j * 50, 60 + i * 50, 40, 40);
+                matrixA[i][j].setCaretColor(new Color(255, 255, 255));
+                matrixA[i][j].setForeground(new Color(255, 255, 255));
+                contentPane.add(matrixA[i][j]);
+
+                matrixB[i][j] = createMatrixTextField();
+                matrixB[i][j].setBounds(650 + j * 50, 60 + i * 50, 40, 40);
+                matrixB[i][j].setCaretColor(new Color(255, 255, 255));
+                matrixB[i][j].setForeground(new Color(255, 255, 255));
+                contentPane.add(matrixB[i][j]);
+            }
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(new Color(21, 38, 54));
+        panel.setBounds(12, 0, 200, 661);
+        contentPane.add(panel);
+
+        btnSum = createOperationButton("SUMAR");
+        btnSum.setBounds(7, 60, 183, 23);
+        panel.add(btnSum);
+
+        JButton btnVolver = new JButton("VOLVER");
+        btnVolver.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Acción para volver al menú principal
+                MenuPrincipal menu = new MenuPrincipal();
+                Window window = SwingUtilities.windowForComponent(btnVolver);
+                window.dispose();
+                menu.setVisible(true);
+            }
+        });
+        btnVolver.setForeground(new Color(31, 166, 140));
+        btnVolver.setFocusable(false);
+        btnVolver.setBackground(new Color(37, 54, 82));
+        btnVolver.setBounds(7, 627, 183, 23);
+        panel.add(btnVolver);
+
+        btnSubtract = createOperationButton("RESTAR");
+        btnSubtract.setBounds(7, 94, 183, 23);
+        panel.add(btnSubtract);
+
+        btnMultiply = createOperationButton("MULTIPLICAR");
+        btnMultiply.setBounds(7, 128, 183, 23);
+        panel.add(btnMultiply);
+
+        btnInverseA = createOperationButton("INVERSA A");
+        btnInverseA.setBounds(7, 162, 183, 23);
+        panel.add(btnInverseA);
+
+        btnDeterminantA = createOperationButton("DETERMINANTE A");
+        btnDeterminantA.setBounds(7, 196, 183, 23);
+        panel.add(btnDeterminantA);
+
+        btnDivide = createOperationButton("DIVIDIR");
+        btnDivide.setBounds(7, 230, 183, 23);
+        panel.add(btnDivide);
+        
+        JLabel lblOpciones = new JLabel("Opciones");
+        lblOpciones.setHorizontalAlignment(SwingConstants.CENTER);
+        lblOpciones.setForeground(new Color(31, 166, 140));
+        lblOpciones.setFont(new Font("BankGothic Lt BT", Font.BOLD, 24));
+        lblOpciones.setBounds(0, 23, 200, 30);
+        panel.add(lblOpciones);
+        
+        JButton btnVaciar = new JButton("VACIAR");
+        btnVaciar.setForeground(new Color(255, 60, 60));
+        btnVaciar.setFont(new Font("BankGothic Lt BT", Font.BOLD, 15));
+        btnVaciar.setFocusable(false);
+        btnVaciar.setBorder(null);
+        btnVaciar.setBackground(new Color(108, 0, 0));
+        btnVaciar.setBounds(7, 264, 183, 23);
+        panel.add(btnVaciar);
+        btnVaciar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                vaciarMatrices();
+            }
+        });
+
+        
+                btnIncreaseSize = new JButton("+");
+                btnIncreaseSize.setBounds(108, 298, 60, 23);
+                panel.add(btnIncreaseSize);
+                btnIncreaseSize.setFont(new Font("BankGothic Lt BT", Font.BOLD, 20));
+                btnIncreaseSize.setForeground(new Color(31, 166, 140));
+                btnIncreaseSize.setHorizontalAlignment(SwingConstants.CENTER);
+                btnIncreaseSize.setBackground(new Color(12, 73, 88));
+                btnIncreaseSize.setFocusable(false);
+                btnIncreaseSize.setBorder(null);
+                
+                
+                        btnDecreaseSize = new JButton("-");
+                        btnDecreaseSize.setBounds(28, 298, 60, 23);
+                        btnDecreaseSize.setFocusable(false);
+                        btnDecreaseSize.setBorder(null);
+                        panel.add(btnDecreaseSize);
+                        btnDecreaseSize.setFont(new Font("BankGothic Lt BT", Font.BOLD, 20));
+                        btnDecreaseSize.setForeground(new Color(31, 166, 140));
+                        btnDecreaseSize.setHorizontalAlignment(SwingConstants.CENTER);
+                        btnDecreaseSize.setBackground(new Color(12, 73, 88));
+                        
+                                btnDecreaseSize.addActionListener(new ActionListener() {
+                                    public void actionPerformed(ActionEvent e) {
+                                        decreaseMatrixSize();
+                                    }
+                                });
+                
+                        btnIncreaseSize.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                increaseMatrixSize();
+                            }
+                        });
+
+        JLabel lblResultado = new JLabel("RESULTADO:");
+        lblResultado.setForeground(new Color(31, 166, 140));
+        lblResultado.setFont(new Font("BankGothic Lt BT", Font.BOLD, 24));
+        lblResultado.setHorizontalAlignment(SwingConstants.CENTER);
+        lblResultado.setBounds(180, 370, 244, 30);
+        contentPane.add(lblResultado);
+
+        textResult = new JTextArea();
+        textResult.setLineWrap(true);
+        textResult.setEditable(false);
+        textResult.setFont(new Font("BankGothic Lt BT", Font.BOLD, 24));
+        textResult.setForeground(new Color(0, 138, 0));
+        textResult.setBackground(new Color(37, 54, 82));
+        textResult.setBounds(212, 400, 867, 200);
+        contentPane.add(textResult);
+
+        btnSum.addActionListener(this);
+        btnSubtract.addActionListener(this);
+        btnMultiply.addActionListener(this);
+        btnInverseA.addActionListener(this);
+        btnDeterminantA.addActionListener(this);
+        btnDivide.addActionListener(this);
+
+        setMatrixSize(matrixSize); // Inicializar matrices con tamaño predeterminado
+    }
+
+    private JTextField createMatrixTextField() {
+        JTextField textField = new JTextField();
+        textField.setFont(new Font("BankGothic Lt BT", Font.BOLD, 18));
+        textField.setForeground(Color.GRAY);
+        textField.setBackground(new Color(37, 54, 82));
+        textField.setHorizontalAlignment(SwingConstants.CENTER);
+        textField.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null), null));
+        return textField;
+    }
+
+    private JButton createOperationButton(String text) {
+        JButton button = new JButton(text);
+        button.setForeground(new Color(31, 166, 140));
+        button.setBackground(new Color(37, 54, 82));
+        button.setFocusable(false);
+        button.setBorder(null);
+        button.setFont(new Font("BankGothic Lt BT", Font.BOLD, 15));
+        return button;
+    }
+public void actionPerformed(ActionEvent e) {
+    double[][] A = new double[matrixSize][matrixSize];
+    double[][] B = new double[matrixSize][matrixSize];
+    try {
+        if (e.getSource() == btnInverseA || e.getSource() == btnDeterminantA) {
+            if (!isMatrixComplete(matrixA, A)) {
+            	textResult.setForeground(new Color(255, 0, 0));
+                textResult.setText("Por favor, complete todas las celdas de la matriz A.");
+                return;
+            }
+        } else {
+            if (!isMatrixComplete(matrixA, A) || !isMatrixComplete(matrixB, B)) {
+            	textResult.setForeground(new Color(255, 0, 0));
+                textResult.setText("Por favor, complete todas las celdas de las matrices.");
+                
+                return;
+            }
+        }
+
+        double[][] resultMatrix = null; // Inicializar resultMatrix
+
+        StringBuilder resultText = new StringBuilder();
+
+        if (e.getSource() == btnSum) {
+            resultMatrix = addMatrices(A, B);
+            resultText.append("Suma de matrices:\n");
+            textResult.setForeground(new Color(0, 138, 0));
+        } else if (e.getSource() == btnSubtract) {
+            resultMatrix = subtractMatrices(A, B);
+            resultText.append("Resta de matrices:\n");
+            textResult.setForeground(new Color(0, 138, 0));
+        } else if (e.getSource() == btnMultiply) {
+            resultMatrix = multiplyMatrices(A, B);
+            resultText.append("Multiplicación de matrices:\n");
+            textResult.setForeground(new Color(0, 138, 0));
+        } else if (e.getSource() == btnInverseA) {
+            if (matrixSize == 1) {
+                if (A[0][0] == 0) {
+                    resultText.append("La matriz no tiene inversa (división por cero).\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                    
+                } else {
+                    resultText.append("Inversa de A:\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                    resultText.append(String.format("%.2f\n", 1 / A[0][0]));
+                }
+            } else {
+                double determinantA = determinant(A);
+                if (determinantA == 0) {
+                    resultText.append("La matriz A no tiene inversa (determinante 0).\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                } else {
+                    resultMatrix = inverseMatrix(A);
+                    resultText.append("Inversa de la matriz A:\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                }
+            }
+        } else if (e.getSource() == btnDeterminantA) {
+            if (matrixSize == 1) {
+                resultText.append(String.format("Determinante de A: %.2f\n", A[0][0]));
+                textResult.setForeground(new Color(0, 138, 0));
+            } else {
+                double determinantA = determinant(A);
+                resultText.append(String.format("Determinante de A: %.2f\n", determinantA));
+                textResult.setForeground(new Color(0, 138, 0));
+            }
+        } else if (e.getSource() == btnDivide) {
+            if (matrixSize == 1) {
+                if (B[0][0] == 0) {
+                    resultText.append("No se puede dividir por cero.\n");
+                    textResult.setForeground(new Color(255, 0, 0));
+                } else {
+                    resultText.append("División de matrices:\n");
+                    resultText.append(String.format("%.2f\n", A[0][0] / B[0][0]));
+                    textResult.setForeground(new Color(0, 138, 0));
+                }
+            } else {
+                double[][] inverseB = inverseMatrix(B);
+                if (inverseB == null) {
+                    resultText.append("La matriz B no tiene inversa, no se puede dividir.\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                } else {
+                    resultMatrix = multiplyMatrices(A, inverseB);
+                    resultText.append("División de matrices (A / B):\n");
+                    textResult.setForeground(new Color(0, 138, 0));
+                }
+            }
+        }
+
+        if (resultMatrix != null) {
+            for (double[] row : resultMatrix) {
+                for (double val : row) {
+                    resultText.append(String.format("%.2f ", val));
+                }
+                resultText.append("\n");
+            }
+        }
+
+        textResult.setText(resultText.toString());
+
+    } catch (NumberFormatException ex) {
+    	textResult.setForeground(new Color(255, 0, 0));
+        textResult.setText("Caracteres invalidos");
+    }
+}
+
+    private boolean isMatrixComplete(JTextField[][] matrixFields, double[][] matrix) {
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                if (matrixFields[i][j].getText().isEmpty()) {
+                    return false;
+                }
+                matrix[i][j] = Double.parseDouble(matrixFields[i][j].getText());
+            }
+        }
+        return true;
+    }
+
+    private void setMatrixSize(int size) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                matrixA[i][j].setVisible(i < size && j < size);
+                matrixB[i][j].setVisible(i < size && j < size);
+            }
+        }
+    }
+
+    private void increaseMatrixSize() {
+        if (matrixSize < 5) {
+            matrixSize++;
+            setMatrixSize(matrixSize);
+        }
+    }
+
+    private void decreaseMatrixSize() {
+        if (matrixSize > 2) {
+            matrixSize--;
+            setMatrixSize(matrixSize);
+        }
+    }
+
+    // Operaciones de matrices
+
+    public double[][] addMatrices(double[][] A, double[][] B) {
+        double[][] C = new double[matrixSize][matrixSize];
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                C[i][j] = A[i][j] + B[i][j];
+            }
+        }
+        return C;
+    }
+
+    public double[][] subtractMatrices(double[][] A, double[][] B) {
+        double[][] C = new double[matrixSize][matrixSize];
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                C[i][j] = A[i][j] - B[i][j];
+            }
+        }
+        return C;
+    }
+
+    public double[][] multiplyMatrices(double[][] A, double[][] B) {
+        double[][] C = new double[matrixSize][matrixSize];
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                C[i][j] = 0;
+                for (int k = 0; k < matrixSize; k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+        return C;
+    }
+
+    public double[][] inverseMatrix(double[][] A) {
+        int n = A.length;
+        double[][] augmentedMatrix = new double[n][2 * n];
+        double[][] inverse = new double[n][n];
+          // Crear una matriz aumentada con A y la matriz identidad
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                augmentedMatrix[i][j] = A[i][j];
+                augmentedMatrix[i][j + n] = (i == j) ? 1 : 0;
+            }
+        }
+    
+        // Aplicar eliminación gaussiana
+        for (int i = 0; i < n; i++) {
+            double pivot = augmentedMatrix[i][i];
+            for (int j = 0; j < 2 * n; j++) {
+                augmentedMatrix[i][j] /= pivot;
+            }
+
+            for (int k = 0; k < n; k++) {
+                if (k != i) {
+                    double factor = augmentedMatrix[k][i];
+                    for (int j = 0; j < 2 * n; j++) {
+                        augmentedMatrix[k][j] -= factor * augmentedMatrix[i][j];
+                    }
+                }
+            }
+        }
+
+        // Extraer la inversa de la matriz aumentada
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                inverse[i][j] = augmentedMatrix[i][j + n];
+            }
+        }
+
+        return inverse;
+    }
+
+    public double determinant(double[][] A) {
+        int n = A.length;
+        if (n == 1) {
+            return A[0][0];
+        }
+
+        double det = 0;
+        for (int i = 0; i < n; i++) {
+            det += Math.pow(-1, i) * A[0][i] * determinant(submatrix(A, 0, i));
+        }
+        return det;
+    }
+
+    private double[][] submatrix(double[][] A, int row, int col) {
+        int n = A.length;
+        double[][] submatrix = new double[n - 1][n - 1];
+        int subRow = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (i == row) continue;
+            int subCol = 0;
+
+            for (int j = 0; j < n; j++) {
+                if (j == col) continue;
+                submatrix[subRow][subCol] = A[i][j];
+                subCol++;
+            }
+            subRow++;
+        }
+        return submatrix;
+    }
+    
+    private void vaciarMatrices() {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                matrixA[i][j].setText("");
+                matrixB[i][j].setText("");
+            }
+        }
+        textResult.setText("Matrices Limpiadas");
+        textResult.setForeground(Color.white);
+    }
+
+}
+
+
